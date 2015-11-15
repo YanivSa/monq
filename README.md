@@ -15,16 +15,31 @@ Connect to MongoDB by specifying a URI or providing `host`, `port` and `database
 var monq = require('monq');
 var client = monq('mongodb://localhost:27017/monq_example');
 ```
+________________
+## Creating Jobs
 
 Enqueue jobs by supplying a job name and a set of parameters.  Below, the job `reverse` is being placed into the `example` queue:
 
 ```javascript
 var queue = client.queue('example');
 
-queue.enqueue('reverse', { text: 'foobar' }, function (err, job) {
+var options = {
+    attempts: { // object
+        count: Infinity, // int
+        delay: 60 * 3, // seconds
+        strategy: // ['linear', 'exponential']
+    },
+    timeout: 60 * 3, // seconds
+    delay: 60, // seconds
+    priority: 10 // relative number between jobs
+    };
+    
+queue.enqueue('reverse', { 
+    text: 'foobar' 
+    },
+    options, function (err, job) {
     console.log('enqueued:', job.data);
 });
-```
 
 Create workers to process the jobs from one or more queues.  The functions responsible for performing a job must be registered with each worker:
 
